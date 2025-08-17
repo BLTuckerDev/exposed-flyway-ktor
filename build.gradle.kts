@@ -31,6 +31,9 @@ dependencies {
     // H2 Database Driver (for our database)
     implementation(libs.h2)
 
+    //Hikari
+    implementation(libs.hikari)
+
     // Logging
     implementation(libs.logback.classic)
 
