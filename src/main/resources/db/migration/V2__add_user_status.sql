@@ -1,0 +1,2 @@
+ALTER TABLE "Users"
+    ADD COLUMN "status" VARCHAR(50) NOT NULL DEFAULT 'active';

@@ -8,13 +8,18 @@ import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransacti
 import org.jetbrains.exposed.sql.transactions.transaction
 
 @Serializable
-data class ExposedUser(val name: String, val age: Int)
+data class ExposedUser(
+    val name: String,
+    val age: Int,
+    val status: String
+)
 
 class UserService() {
     object Users : Table("Users") {
         val id = integer("id").autoIncrement()
         val name = varchar("name", length = 50)
         val age = integer("age")
+        val status = varchar("status", 50).default("active")
 
         override val primaryKey = PrimaryKey(id)
     }
@@ -23,6 +28,7 @@ class UserService() {
         Users.insert {
             it[name] = user.name
             it[age] = user.age
+            it[status] = user.status
         }[Users.id]
     }
 
@@ -30,7 +36,7 @@ class UserService() {
         return dbQuery {
             Users.selectAll()
                 .where { Users.id eq id }
-                .map { ExposedUser(it[Users.name], it[Users.age]) }
+                .map { ExposedUser(it[Users.name], it[Users.age], it[Users.status]) }
                 .singleOrNull()
         }
     }
@@ -40,6 +46,7 @@ class UserService() {
             Users.update({ Users.id eq id }) {
                 it[name] = user.name
                 it[age] = user.age
+                it[status] = user.status
             }
         }
     }
@@ -56,7 +63,7 @@ class UserService() {
     suspend fun getAll(): List<ExposedUser> {
         return dbQuery {
             Users.selectAll()
-                .map { ExposedUser(it[Users.name], it[Users.age]) }
+                .map { ExposedUser(it[Users.name], it[Users.age], it[Users.status]) }
                 .toList()
         }
     }
