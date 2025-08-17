@@ -10,19 +10,13 @@ import org.jetbrains.exposed.sql.transactions.transaction
 @Serializable
 data class ExposedUser(val name: String, val age: Int)
 
-class UserService(database: Database) {
-    object Users : Table() {
+class UserService() {
+    object Users : Table("Users") {
         val id = integer("id").autoIncrement()
         val name = varchar("name", length = 50)
         val age = integer("age")
 
         override val primaryKey = PrimaryKey(id)
-    }
-
-    init {
-        transaction(database) {
-            SchemaUtils.create(Users)
-        }
     }
 
     suspend fun create(user: ExposedUser): Int = dbQuery {
@@ -58,5 +52,13 @@ class UserService(database: Database) {
 
     private suspend fun <T> dbQuery(block: suspend () -> T): T =
         newSuspendedTransaction(Dispatchers.IO) { block() }
+
+    suspend fun getAll(): List<ExposedUser> {
+        return dbQuery {
+            Users.selectAll()
+                .map { ExposedUser(it[Users.name], it[Users.age]) }
+                .toList()
+        }
+    }
 }
 

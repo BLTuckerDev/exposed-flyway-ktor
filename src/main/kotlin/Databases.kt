@@ -1,30 +1,38 @@
 package dev.bltucker.exposedflyway
 
-import io.ktor.http.*
-import io.ktor.serialization.kotlinx.json.*
-import io.ktor.server.application.*
-import io.ktor.server.plugins.calllogging.*
-import io.ktor.server.plugins.contentnegotiation.*
-import io.ktor.server.request.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
-import org.jetbrains.exposed.sql.*
-import org.slf4j.event.*
+import com.zaxxer.hikari.HikariConfig
+import com.zaxxer.hikari.HikariDataSource
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.application.Application
+import io.ktor.server.request.receive
+import io.ktor.server.response.respond
+import io.ktor.server.routing.delete
+import io.ktor.server.routing.get
+import io.ktor.server.routing.post
+import io.ktor.server.routing.put
+import io.ktor.server.routing.routing
+import org.flywaydb.core.Flyway
+import org.jetbrains.exposed.sql.Database
 
 fun Application.configureDatabases() {
-    val database = Database.connect(
-        url = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1",
-        user = "root",
-        driver = "org.h2.Driver",
-        password = "",
-    )
-    val userService = UserService(database)
+
+    val hikariDataSource = createDataSource()
+    runFlyway(hikariDataSource)
+
+    val database = Database.connect(hikariDataSource)
+
+    val userService = UserService()
     routing {
         // Create user
         post("/users") {
             val user = call.receive<ExposedUser>()
             val id = userService.create(user)
             call.respond(HttpStatusCode.Created, id)
+        }
+
+        get("/users"){
+            val users = userService.getAll()
+            call.respond(HttpStatusCode.OK, users)
         }
 
         // Read user
@@ -52,5 +60,29 @@ fun Application.configureDatabases() {
             userService.delete(id)
             call.respond(HttpStatusCode.OK)
         }
+    }
+}
+
+
+private fun createDataSource(): HikariDataSource {
+    val config = HikariConfig()
+    config.driverClassName = "org.h2.Driver"
+    config.jdbcUrl = "jdbc:h2:file:./data/devdb;DATABASE_TO_UPPER=FALSE"
+    config.username = "admin"
+    config.password = "test"
+    config.validate()
+    return HikariDataSource(config)
+}
+
+private fun runFlyway(dataSource: HikariDataSource) {
+    val flyway = Flyway.configure()
+        .dataSource(dataSource)
+        .load()
+    try {
+        flyway.migrate()
+    } catch (e: Exception) {
+        // Handle migration failures
+        println("Flyway migration failed: ${e.message}")
+        throw e
     }
 }
