@@ -67,5 +67,32 @@ class UserService() {
                 .toList()
         }
     }
+
+
+    //User notes
+
+    // In your UserService class...
+
+    suspend fun createNote(userId: Int, title: String, content: String): Int = dbQuery {
+        Notes.insert {
+            it[Notes.userId] = userId
+            it[Notes.title] = title
+            it[Notes.content] = content
+        }[Notes.id]
+    }
+
+    suspend fun getNotesForUser(userId: Int): List<ExposedNote> = dbQuery {
+        Notes.selectAll().where { Notes.userId eq userId }
+            .map {
+                ExposedNote(
+                    id = it[Notes.id],
+                    // Assert non-null because we know our new code always sets it
+                    userId = it[Notes.userId]!!,
+                    title = it[Notes.title],
+                    content = it[Notes.content],
+                    createdAt = it[Notes.createdAt].toString()
+                )
+            }
+    }
 }
 

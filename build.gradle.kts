@@ -24,6 +24,7 @@ dependencies {
     implementation(libs.exposed.core)
     implementation(libs.exposed.dao)
     implementation(libs.exposed.jdbc)
+    implementation(libs.exposed.java.time)
 
     // Flyway (for database migrations)
     implementation(libs.flyway.core)
