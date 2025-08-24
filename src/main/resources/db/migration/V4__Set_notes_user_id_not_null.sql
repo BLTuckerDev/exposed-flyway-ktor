@@ -1,0 +1,2 @@
+ALTER TABLE "Notes"
+    ALTER COLUMN "user_id" SET NOT NULL;

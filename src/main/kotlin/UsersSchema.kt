@@ -86,8 +86,7 @@ class UserService() {
             .map {
                 ExposedNote(
                     id = it[Notes.id],
-                    // Assert non-null because we know our new code always sets it
-                    userId = it[Notes.userId]!!,
+                    userId = it[Notes.userId],
                     title = it[Notes.title],
                     content = it[Notes.content],
                     createdAt = it[Notes.createdAt].toString()

@@ -22,7 +22,7 @@ data class ExposedNote(
 object Notes : Table("Notes") {
     val id = integer("id").autoIncrement()
     // The foreign key is nullable to match the V3 migration
-    val userId = integer("user_id").references(UserService.Users.id).nullable()
+    val userId = integer("user_id").references(UserService.Users.id)
     val title = varchar("title", 255)
     val content = text("content")
     val createdAt = timestamp("created_at").default(Instant.now())
