@@ -11,6 +11,7 @@ fun main(args: Array<String>) {
 fun Application.module() {
     configureContentNegotiation()
     configureDatabases()
+    configureRoutes()
 }
 
 private fun Application.configureContentNegotiation() {
