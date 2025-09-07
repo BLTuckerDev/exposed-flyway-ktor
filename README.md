@@ -1,5 +1,5 @@
 # Ktor, Exposed, and Flyway
-This project is a sample that accompanies this [blog post](https://github.com/BLTuckerDev/exposed-flyway-ktor)
+This project is a sample that accompanies this [blog post](https://blog.bltucker.com/flying-with-flyway-database-migrations-in-exposed-ktor-projects/)
 
 It is meant to demonstrate how you can use flyway, ktor, and exposed together to build a modern web application.
 
